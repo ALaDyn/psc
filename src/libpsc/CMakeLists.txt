@@ -23,6 +23,7 @@ add_library(psc
 target_include_directories(psc PUBLIC ../include)
 target_link_libraries(psc PUBLIC kg mrc)
 target_link_libraries(psc PUBLIC kg MPI::MPI_CXX)
+target_link_libraries(psc PUBLIC gtensor::gtensor)
 target_compile_features(psc PUBLIC cxx_std_11)
 
 if (USE_CUDA)
@@ -60,7 +61,6 @@ if (USE_CUDA)
     
     cuda/cuda_heating.cu)
   target_include_directories(psc PUBLIC cuda)
-  target_link_libraries(psc PUBLIC Thrust gtensor::gtensor)
 endif()
 
 if (PSC_HAVE_RMM)
