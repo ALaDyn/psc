@@ -48,15 +48,14 @@ public:
     }
   }
 
-  template <typename EXP>
-  void write_pfd(EXP& pfd)
+  template <typename E, typename EXP>
+  void write_pfd(const E& e, EXP& pfd)
   {
     mpi_printf(pfd.grid().comm(), "***** Writing PFD output\n");
     pfield_next_ += pfield_interval;
     io_pfd_.begin_step(pfd.grid());
     io_pfd_.set_subset(pfd.grid(), rn, rx);
-    io_pfd_.write(adapt(evalMfields(pfd)), pfd.grid(), pfd.name(),
-                  pfd.comp_names());
+    io_pfd_.write(e, pfd.grid(), pfd.name(), pfd.comp_names());
     io_pfd_.end_step();
   }
 
@@ -179,11 +178,12 @@ public:
       prof_start(pr_field);
       prof_start(pr_field_calc);
       Item_jeh<MfieldsState> pfd_jeh{mflds};
+      auto pfd = adapt(evalMfields(pfd_jeh));
       prof_stop(pr_field_calc);
 
       if (do_pfield) {
         prof_start(pr_field_write);
-        fields.write_pfd(pfd_jeh);
+        fields.write_pfd(pfd, pfd_jeh);
         prof_stop(pr_field_write);
       }
 
@@ -217,11 +217,12 @@ public:
       prof_start(pr_moment);
       prof_start(pr_moment_calc);
       FieldsItem_Moments_1st_cc<Mparticles> pfd_moments{mprts};
+      auto&& pfd = adapt(evalMfields(pfd_moments));
       prof_stop(pr_moment_calc);
 
       if (do_pfield_moments) {
         prof_start(pr_moment_write);
-        moments.write_pfd(pfd_moments);
+        moments.write_pfd(pfd, pfd_moments);
         prof_stop(pr_moment_write);
       }
 
